@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="aurora">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UltraProx</title>
+<link rel="icon" id="fav" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M20 18v18a12 12 0 0 0 24 0V18' stroke='white' stroke-width='7' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+[data-theme=aurora]{--bg:#0a0b14;--panel:rgba(255,255,255,.07);--line:rgba(255,255,255,.13);--fg:#f1f2ff;--mut:#9aa0c8;--a:#8b5cf6;--b:#22d3ee;--b1:#7c3aed;--b2:#0891b2;--b3:#db2777}
+[data-theme=ocean]{--bg:#06121c;--panel:rgba(255,255,255,.07);--line:rgba(255,255,255,.13);--fg:#eaf6ff;--mut:#8fb0c8;--a:#38bdf8;--b:#34d399;--b1:#0369a1;--b2:#047857;--b3:#1d4ed8}
+[data-theme=sunset]{--bg:#150b12;--panel:rgba(255,255,255,.07);--line:rgba(255,255,255,.13);--fg:#fff1f3;--mut:#c9a0aa;--a:#fb7185;--b:#fbbf24;--b1:#be123c;--b2:#b45309;--b3:#7e22ce}
+[data-theme=light]{--bg:#f4f5ff;--panel:rgba(255,255,255,.78);--line:rgba(30,30,80,.13);--fg:#161833;--mut:#5b6088;--a:#6d4aff;--b:#0ea5e9;--b1:#c4b5fd;--b2:#a5f3fc;--b3:#fbcfe8}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,"Segoe UI",Arial,sans-serif;transition:background .4s}
+#app{display:flex;flex-direction:column;height:100%}
+#bar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--panel);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);position:relative;z-index:5}
+.ib{width:36px;height:36px;border-radius:10px;border:0;background:transparent;color:var(--fg);font-size:17px;cursor:pointer;transition:.15s}
+.ib:hover{background:var(--line)}
+.brand{font-weight:800;font-size:17px;letter-spacing:-.3px;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent;cursor:pointer;margin:0 8px 0 2px}
+#url{flex:1;min-width:0;height:38px;border-radius:19px;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:0 18px;font-size:14px;outline:none;transition:.2s}
+#url:focus{border-color:var(--a);box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 28%,transparent)}
+#load{height:3px;background:linear-gradient(90deg,var(--a),var(--b));width:0;transition:width .4s,opacity .3s;opacity:0}
+#load.on{width:80%;opacity:1;transition:width 8s cubic-bezier(.1,.8,.2,1)}
+#view{flex:1;position:relative}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+#home{position:absolute;inset:0;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:24px;text-align:center;background:var(--bg);z-index:2}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;pointer-events:none;animation:fl 18s ease-in-out infinite}
+.blob:nth-child(1){width:46vmax;height:46vmax;background:var(--b1);top:-15vmax;left:-10vmax}
+.blob:nth-child(2){width:40vmax;height:40vmax;background:var(--b2);bottom:-14vmax;right:-8vmax;animation-delay:-6s}
+.blob:nth-child(3){width:30vmax;height:30vmax;background:var(--b3);top:30%;left:55%;animation-delay:-12s;opacity:.35}
+@keyframes fl{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vmax,4vmax) scale(1.15)}}
+#home>*:not(.blob){position:relative}
+.logo{display:flex;align-items:center;gap:14px}
+.mark{width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,var(--a),var(--b));display:grid;place-items:center;box-shadow:0 10px 40px color-mix(in srgb,var(--a) 55%,transparent)}
+h1{margin:0;font-size:clamp(42px,8vw,76px);letter-spacing:-2px;background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{margin:-14px 0 0;color:var(--mut);font-size:16px}
+#hs{width:min(620px,92vw);height:56px;border-radius:28px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(16px);color:var(--fg);padding:0 26px;font-size:17px;outline:none;transition:.2s;box-shadow:0 12px 40px rgba(0,0,0,.18)}
+#hs:focus{border-color:var(--a);box-shadow:0 0 0 4px color-mix(in srgb,var(--a) 25%,transparent),0 12px 40px rgba(0,0,0,.2)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,110px));gap:14px;justify-content:center;width:min(620px,92vw)}
+.tile{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(16px);border-radius:18px;padding:16px 8px 12px;color:var(--fg);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:9px;font-size:13px;transition:.2s}
+.tile:hover{transform:translateY(-4px);border-color:var(--a)}
+.tile i{font-style:normal;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:19px;color:#fff}
+.dots{display:flex;gap:10px}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);cursor:pointer;transition:.15s}
+.dot:hover,.dot.on{transform:scale(1.2);border-color:var(--fg)}
+#menu{position:absolute;right:12px;top:54px;background:var(--panel);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:14px;padding:8px;display:none;flex-direction:column;min-width:220px;z-index:9;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+#menu.on{display:flex}
+#menu button{background:none;border:0;color:var(--fg);text-align:left;padding:10px 12px;border-radius:9px;cursor:pointer;font-size:14px}
+#menu button:hover{background:var(--line)}
+#menu small{color:var(--mut);padding:6px 12px 2px;font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="bar">
+    <span class="brand" id="brand">UltraProx</span>
+    <button class="ib" id="back" title="Back">←</button>
+    <button class="ib" id="fwd" title="Forward">→</button>
+    <button class="ib" id="rel" title="Reload">⟳</button>
+    <input id="url" placeholder="Search or enter a web address" autocomplete="off" spellcheck="false">
+    <button class="ib" id="pal" title="Change theme">🎨</button>
+    <button class="ib" id="cl" title="Tab cloak">🕶</button>
+  </div>
+  <div id="load"></div>
+  <div id="menu">
+    <small>Open</small>
+    <button id="blank">Launch in about:blank</button>
+    <small>Disguise this tab</small>
+    <button data-c="Google Docs|📄">Google Docs</button>
+    <button data-c="Classroom|🎓">Classroom</button>
+    <button data-c="Google Drive|📁">Google Drive</button>
+    <button data-c="UltraProx|">Reset</button>
+  </div>
+  <div id="view">
+    <div id="home">
+      <div class="blob"></div><div class="blob"></div><div class="blob"></div>
+      <div class="logo">
+        <div class="mark"><svg width="34" height="34" viewBox="0 0 64 64"><path d="M20 14v22a12 12 0 0 0 24 0V14" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/></svg></div>
+        <h1>UltraProx</h1>
+      </div>
+      <p class="tag">Fast, free, private browsing.</p>
+      <input id="hs" placeholder="Search the web or type a URL" autocomplete="off" autofocus>
+      <div class="tiles">
+        <button class="tile" data-u="https://duckduckgo.com"><i style="background:#de5833">D</i>DuckDuckGo</button>
+        <button class="tile" data-u="https://en.wikipedia.org"><i style="background:#555">W</i>Wikipedia</button>
+        <button class="tile" data-u="https://old.reddit.com"><i style="background:#ff4500">R</i>Reddit</button>
+        <button class="tile" data-u="https://news.ycombinator.com"><i style="background:#ff6600">H</i>Hacker News</button>
+        <button class="tile" data-u="https://archive.org"><i style="background:#2f6fa7">A</i>Archive</button>
+        <button class="tile" data-u="https://github.com"><i style="background:#24292f">G</i>GitHub</button>
+      </div>
+      <div class="dots" id="dots"></div>
+    </div>
+    <iframe id="f" style="display:none"></iframe>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id), f=$('f'), home=$('home'), load=$('load');
+const themes=[['aurora','#8b5cf6'],['ocean','#38bdf8'],['sunset','#fb7185'],['light','#e8e9ff']];
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.ut=t}catch(e){}
+  document.querySelectorAll('.dot').forEach(d=>d.classList.toggle('on',d.dataset.t===t))}
+themes.forEach(([t,c])=>{const d=document.createElement('div');d.className='dot';d.dataset.t=t;d.style.background=c;d.title=t;d.onclick=()=>setTheme(t);$('dots').append(d)});
+setTheme((()=>{try{return localStorage.ut}catch(e){}})()||'aurora');
+$('pal').onclick=()=>{const i=themes.findIndex(x=>x[0]===document.documentElement.dataset.theme);setTheme(themes[(i+1)%themes.length][0])};
+
+function norm(q){q=q.trim();if(!q)return'';
+  if(/^https?:\/\//i.test(q))return q;
+  if(/^[\w-]+(\.[\w-]+)+(:\d+)?([\/?#].*)?$/.test(q))return'https://'+q;
+  return'https://html.duckduckgo.com/html/?q='+encodeURIComponent(q)}
+function go(q){const u=norm(q);if(!u)return;home.style.display='none';f.style.display='block';
+  load.className='';void load.offsetWidth;load.className='on';f.src='/p/'+u;$('url').value=u}
+f.addEventListener('load',()=>{load.className='';
+  try{const l=f.contentWindow.location;if(l.pathname.startsWith('/p/'))$('url').value=l.pathname.slice(3)+l.search+l.hash;
+    const t=f.contentDocument.title;if(t&&!tabLocked)document.title=t+' - UltraProx'}catch(e){}});
+$('hs').onkeydown=e=>{if(e.key==='Enter')go(e.target.value)};
+$('url').onkeydown=e=>{if(e.key==='Enter')go(e.target.value)};
+$('url').onfocus=e=>e.target.select();
+document.querySelectorAll('.tile').forEach(b=>b.onclick=()=>go(b.dataset.u));
+$('back').onclick=()=>{try{f.contentWindow.history.back()}catch(e){}};
+$('fwd').onclick=()=>{try{f.contentWindow.history.forward()}catch(e){}};
+$('rel').onclick=()=>{try{f.contentWindow.location.reload()}catch(e){}};
+$('brand').onclick=()=>{f.style.display='none';f.src='about:blank';home.style.display='flex';$('url').value='';$('hs').focus()};
+
+let tabLocked=false;
+$('cl').onclick=e=>{e.stopPropagation();$('menu').classList.toggle('on')};
+document.addEventListener('click',()=>$('menu').classList.remove('on'));
+document.querySelectorAll('#menu [data-c]').forEach(b=>b.onclick=()=>{
+  const [t,ic]=b.dataset.c.split('|');document.title=t;tabLocked=t!=='UltraProx';
+  if(ic)$('fav').href='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="52" font-size="52">'+ic+'</text></svg>')});
+$('blank').onclick=()=>{const w=window.open('about:blank','_blank');if(!w)return alert('Allow pop-ups to use this.');
+  w.document.title='Google Docs';w.document.body.style.margin=0;
+  const i=w.document.createElement('iframe');i.src=location.href;i.style.cssText='position:fixed;inset:0;width:100%;height:100%;border:0';w.document.body.appendChild(i)};
+</script>
+</body>
+</html>

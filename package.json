@@ -1,0 +1,8 @@
+{
+  "name": "ultraprox",
+  "version": "1.0.0",
+  "description": "UltraProx - a free server-side web proxy browser",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
